@@ -7,6 +7,7 @@ import com.ptt.cargoAdressSorter.repositories.DistrictRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -38,9 +39,9 @@ public class CargoService {
         cargoRepository.delete(cargoEnt);
     }
 
-    public void updateCargo(CargoEnt cargoEnt) {
+    public CargoEnt updateCargo(CargoEnt cargoEnt) {
         Optional<CargoEnt> existingCargoOptional = cargoRepository.findById(cargoEnt.getId());
-
+        CargoEnt updatedEnt = null;
         if (existingCargoOptional.isPresent()) {
             CargoEnt existingCargo = existingCargoOptional.get();
 
@@ -50,13 +51,18 @@ public class CargoService {
             existingCargo.setSenderPerson(cargoEnt.getSenderPerson());
             existingCargo.setRecipientPerson(cargoEnt.getRecipientPerson());
 
-            cargoRepository.save(existingCargo);
+            updatedEnt = cargoRepository.save(existingCargo);
         } else {
             System.out.println("Böyle bir kayıt bulunamadı!");
         }
+        return cargoEnt;
     }
 
     public Optional<CargoEnt> getCargoById(long id) {
         return cargoRepository.findById(id);
+    }
+
+    public List<CargoEnt> getAllCargo() {
+        return cargoRepository.findAll();
     }
 }

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.events.Event;
 
 import javax.persistence.Id;
+import java.util.List;
 
 @Service
 public class PostmanService {
@@ -41,17 +42,15 @@ public class PostmanService {
         return responsEnt;
     }
 
-    public Boolean updatePostman(PostmanEnt updatedPostman) throws Exception {
+    public PostmanEnt updatePostman(PostmanEnt updatedPostman) throws Exception {
 
         Long postId = updatedPostman.getId();
         PostmanEnt existingPostman = postmanRepository.findById(postId).orElse(null);
 
         if (existingPostman != null) {
-            postmanRepository.save(updatedPostman);
-        } else {
-            return false;
+            return postmanRepository.save(updatedPostman);
         }
-        return true;
+        return null;
     }
 
 
@@ -73,6 +72,9 @@ public class PostmanService {
 
     public PostmanEnt getPostmanById(Long id){
         return postmanRepository.findById(id).orElse(null);
+    }
+    public List<PostmanEnt> getAllPostman(){
+        return postmanRepository.findAll();
     }
 }
 

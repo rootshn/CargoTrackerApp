@@ -5,6 +5,7 @@ import com.ptt.cargoAdressSorter.repositories.DistrictRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -16,8 +17,8 @@ public class DistrictService {
         this.districtRepository = districtRepository;
     }
 
-    public void saveDistrict(DistrictEnt districtEnt) {
-        districtRepository.save(districtEnt);
+    public DistrictEnt saveDistrict(DistrictEnt districtEnt) {
+        return districtRepository.save(districtEnt);
     }
 
     public void deleteDistrictById(long id) {
@@ -25,14 +26,11 @@ public class DistrictService {
     }
 
     public void deleteDistrict(DistrictEnt districtEnt) {
-        if (districtEnt != null) {
             districtRepository.delete(districtEnt);
-        } else {
-            System.out.println("District object is null.");
-        }
     }
 
-    public void updateDistrict(DistrictEnt districtEnt) {
+    public DistrictEnt updateDistrict(DistrictEnt districtEnt) {
+        DistrictEnt updatedEnt = null;
         if (districtEnt.getId() != null) {
             Optional<DistrictEnt> existingDistrictOptional = districtRepository.findById(districtEnt.getId());
 
@@ -40,16 +38,20 @@ public class DistrictService {
                 DistrictEnt existingDistrict = existingDistrictOptional.get();
                 existingDistrict.setDistrictName(districtEnt.getDistrictName());
                 existingDistrict.setDescription(districtEnt.getDescription());
-
-                districtRepository.save(existingDistrict);
+                updatedEnt = districtRepository.save(existingDistrict);
             } else {
                 System.out.println("There is no district with the provided ID.");
             }
         } else {
             System.out.println("District ID is null.");
         }
+        return updatedEnt;
     }
     public Optional<DistrictEnt> getDistrictById(long id) {
         return districtRepository.findById(id);
+    }
+
+    public List<DistrictEnt> getAllDistrict() {
+        return districtRepository.findAll();
     }
 }

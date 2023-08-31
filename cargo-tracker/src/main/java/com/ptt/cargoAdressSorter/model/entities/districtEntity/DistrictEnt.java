@@ -20,18 +20,7 @@ public class DistrictEnt {
     @Column(name ="description")
     private String description;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "postman_id", referencedColumnName = "id")
     private PostmanEnt assignedPostman;
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void saveDistrict(DistrictEnt districtEnt, Class<DistrictDTO> districtDTOClass) {
-    }
 }
