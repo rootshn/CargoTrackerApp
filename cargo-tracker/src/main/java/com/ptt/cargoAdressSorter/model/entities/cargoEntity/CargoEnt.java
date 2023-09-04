@@ -3,8 +3,12 @@ package com.ptt.cargoAdressSorter.model.entities.cargoEntity;
 import com.ptt.cargoAdressSorter.model.entities.districtEntity.DistrictEnt;
 import com.ptt.cargoAdressSorter.model.entities.personEntity.PersonInfo;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
+import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
 @Data
@@ -22,11 +26,11 @@ public class CargoEnt {
     @Column(name = "exit_address")
     private String exitAddress;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "sender_person_id", referencedColumnName = "id")
     private PersonInfo senderPerson;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade =  CascadeType.MERGE)
     @JoinColumn(name = "recipient_person_id", referencedColumnName = "id")
     private PersonInfo recipientPerson;
 
@@ -34,7 +38,11 @@ public class CargoEnt {
     @JoinColumn(name = "district_id", referencedColumnName = "id")
     private DistrictEnt district;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @Column(name = "last_updated_time")
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss.SSS")
+    private Date lastUpdatedTime;
+
+    @OneToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "statusEnt", referencedColumnName = "id")
     private CargoStatusEnt statusEnt;
 

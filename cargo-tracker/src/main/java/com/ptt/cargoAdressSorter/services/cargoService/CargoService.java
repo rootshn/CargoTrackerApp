@@ -4,11 +4,14 @@ import com.ptt.cargoAdressSorter.model.entities.cargoEntity.CargoEnt;
 import com.ptt.cargoAdressSorter.model.entities.districtEntity.DistrictEnt;
 import com.ptt.cargoAdressSorter.repositories.CargoRepository;
 import com.ptt.cargoAdressSorter.repositories.DistrictRepository;
+import com.ptt.cargoAdressSorter.utils.CargoUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.ptt.cargoAdressSorter.algorithm.*;
 
-import java.util.List;
-import java.util.Optional;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Service
 public class CargoService {
@@ -18,6 +21,34 @@ public class CargoService {
 
     @Autowired
     DistrictRepository districtRepository;
+
+    public List<CargoEnt> doSortingCargo(List<CargoEnt> unSortCargoList) throws ParseException {
+        MultiRelativeSorting multiRelativeSorting = new MultiRelativeSorting();
+        List<CargoEnt> cargoEntList = new ArrayList<>();
+        SimpleDateFormat dateFormat = new SimpleDateFormat( "yyyy-MM-dd" );
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, 1);
+        multiRelativeSorting.clearStore();
+        int count = 0; // son 30 günün gönderileri ile karşılaştıracak.
+        do {
+            count++;
+            Date endDate = dateFormat.parse(dateFormat.format(cal.getTime()));
+            cal.add(Calendar.DATE, -1);
+            Date startDate = dateFormat.parse(dateFormat.format(cal.getTime()));
+            cargoEntList = cargoRepository.findByLastUpdatedTimeBetweenOrderByLastUpdatedTimeAsc(startDate, endDate);
+            if(cargoEntList.size()>0){
+                LinkedHashMap<Integer,CargoEnt> dailyPostedCargos = new LinkedHashMap<>();
+                for (int i=0;i<cargoEntList.size();i++) {
+                    dailyPostedCargos.put(i,cargoEntList.get(i));
+                }
+                multiRelativeSorting.addToStore(dailyPostedCargos);
+            }
+
+        }while(count<30); // son 30 günün gönderileri ile karşılaştıracak.
+
+
+        return  CargoUtils.linkedHashMapToArrayList(multiRelativeSorting.doRelativeSort(CargoUtils.arrayListToLinkedHashMap(unSortCargoList)));
+    }
 
     public CargoEnt saveCargo(CargoEnt cargoEnt, Long districtId) {
         Optional<DistrictEnt> districtOptional = districtRepository.findById(districtId);

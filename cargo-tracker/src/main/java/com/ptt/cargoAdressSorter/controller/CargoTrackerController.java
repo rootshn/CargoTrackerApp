@@ -10,12 +10,18 @@ import com.ptt.cargoAdressSorter.services.cargoService.CargoService;
 import com.ptt.cargoAdressSorter.services.districtService.DistrictService;
 import com.ptt.cargoAdressSorter.services.postmanService.PostmanService;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,12 +41,89 @@ public class CargoTrackerController {
         this.districtService = districtService;
     }
 
+
+    @PostMapping("doSortingCargo")
+    public ResponseEntity<CommonResponse> doSortingCargo(@RequestBody List<CargoDTO> cargoDtoList) {
+        List<CargoEnt> unSortedCargoList = new ArrayList<>();
+        try {
+            for (int i=0;i<cargoDtoList.size();i++) {
+                ModelMapper modelMapper = new ModelMapper();
+                CargoEnt cargoEnt = modelMapper.map(cargoDtoList.get(i), CargoEnt.class);
+                unSortedCargoList.add(cargoEnt);
+            }
+             List<CargoEnt> sortedCargoEntList = cargoService.doSortingCargo(unSortedCargoList);
+            System.out.println("Cargo saved successfully.");
+            return ResponseEntity.ok(CommonResponse.builder().message("Successful").data(sortedCargoEntList).build());
+        } catch (IllegalArgumentException e) {
+            System.err.println("District with the given id not found.");
+            return ResponseEntity.ok(CommonResponse.builder().message("District with the given id not found. Error : "+e.getMessage()).data(null).build()); // HTTP 404 Not Found
+        } catch (Exception e) {
+            System.err.println("An error occurred while saving cargo.");
+            return ResponseEntity.ok(CommonResponse.builder().message("An error occurred while saving cargo. Error : "+e.getMessage()).data(null).build()); // HTTP 404 Not Found
+
+        }
+    }
+
+    @PostMapping("saveCargoList")
+    public ResponseEntity<CommonResponse> saveCargoList(@RequestBody List<CargoDTO> cargoDtoList) {
+
+        List<CargoEnt> savedCargoList = new ArrayList<>();
+        try {
+            for (int i=0;i<cargoDtoList.size();i++) {
+                ModelMapper modelMapper = new ModelMapper();
+                CargoEnt cargoEnt = modelMapper.map(cargoDtoList.get(i), CargoEnt.class);
+                if(cargoDtoList.get(i).getLastUpdatedTimeStr()!=null && cargoDtoList.get(i).getLastUpdatedTimeStr()!=""){
+                    try {
+                        Date date1=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").parse(cargoDtoList.get(i).getLastUpdatedTimeStr());
+                        cargoEnt.setLastUpdatedTime(date1);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                        cargoEnt.setLastUpdatedTime(new Date());
+                    }
+
+                }
+//            else
+//               cargoEntList.get(i).setLastUpdatedTime(new Date());
+                try {
+                    CargoEnt savedCargo = cargoService.saveCargo(cargoEnt, cargoDtoList.get(i).getDistrictId());
+                    savedCargoList.add(savedCargo);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+
+            }
+
+            System.out.println("Cargo List saved successfully.");
+            return ResponseEntity.ok(CommonResponse.builder().message("Successful").data(savedCargoList).build());
+        } catch (IllegalArgumentException e) {
+            System.err.println("District with the given id not found.");
+            return ResponseEntity.ok(CommonResponse.builder().message("District with the given id not found. Error : "+e.getMessage()).data(null).build()); // HTTP 404 Not Found
+        } catch (Exception e) {
+            System.err.println("An error occurred while saving cargo.");
+            return ResponseEntity.ok(CommonResponse.builder().message("An error occurred while saving cargo. Error : "+e.getMessage()).data(null).build()); // HTTP 404 Not Found
+
+        }
+    }
+
+
     @PostMapping("saveCargo")
     public ResponseEntity<CommonResponse> saveCargo(@RequestBody CargoDTO cargoDto) {
         ModelMapper modelMapper = new ModelMapper();
         CargoEnt savedCargo = null;
         try {
             CargoEnt cargoEnt = modelMapper.map(cargoDto, CargoEnt.class);
+            if(cargoDto.getLastUpdatedTimeStr()!=null && cargoDto.getLastUpdatedTimeStr()!=""){
+                try {
+                    Date date1=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").parse(cargoDto.getLastUpdatedTimeStr());
+                    cargoEnt.setLastUpdatedTime(date1);
+                }catch (Exception e){
+                    e.printStackTrace();
+                    cargoEnt.setLastUpdatedTime(new Date());
+                }
+
+            }
+//            else
+//               cargoEnt.setLastUpdatedTime(new Date());
             savedCargo = cargoService.saveCargo(cargoEnt, cargoDto.getDistrictId());
             System.out.println("Cargo saved successfully.");
             return ResponseEntity.ok(CommonResponse.builder().message("Successful").data(savedCargo).build());
@@ -69,6 +152,7 @@ public class CargoTrackerController {
     public ResponseEntity<CommonResponse> updateCargo(@RequestBody CargoEnt cargoEnt) {
         CargoEnt updatedEnt = null;
         try {
+            //cargoEnt.setLastUpdatedTime(new Date());
             updatedEnt = cargoService.updateCargo(cargoEnt);
             return ResponseEntity.ok(CommonResponse.builder().message("Successful").data(updatedEnt).build());
         } catch (Exception e) {
