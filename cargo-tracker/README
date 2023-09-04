@@ -1,0 +1,77 @@
+
+For Test with POSTMAN:
+
+TYPE  :POST
+
+URL   : http://localhost:8085/v1/cargoTracker/doSortingCargo
+
+BODY  :
+
+[
+{
+      "districtId":13,
+      "barcode": "35AA56789DDD",
+      "arrivalAddress": "F",
+      "exitAddress": "Dağıtım Şubesi",
+      "senderPerson": {
+        "id": 15,
+        "name": "serçe",
+        "lastname": "kuş",
+        "personAddress": "istanbul",
+        "mobilePhoneNumber": "05662585858",
+        "identityNumber": "5445454"
+      },
+      "recipientPerson": {
+        "id": 14,
+        "name": "harun",
+        "lastname": "taş",
+        "personAddress": "Ankara",
+        "mobilePhoneNumber": "05333696969",
+        "identityNumber": "232323"
+      }
+    },
+{
+      "districtId":13,
+      "barcode": "35AA56789FFD",
+      "arrivalAddress": "C",
+      "exitAddress": "Dağıtım Şubesi",
+      "senderPerson": {
+        "id": 15,
+        "name": "serçe",
+        "lastname": "kuş",
+        "personAddress": "istanbul",
+        "mobilePhoneNumber": "05662585858",
+        "identityNumber": "5445454"
+      },
+      "recipientPerson": {
+        "id": 14,
+        "name": "harun",
+        "lastname": "taş",
+        "personAddress": "Ankara",
+        "mobilePhoneNumber": "05333696969",
+        "identityNumber": "232323"
+      }
+    },
+{
+      "districtId":13,
+      "barcode": "35AA56789HHD",
+      "arrivalAddress": "H",
+      "exitAddress": "Dağıtım Şubesi",
+      "senderPerson": {
+        "id": 15,
+        "name": "serçe",
+        "lastname": "kuş",
+        "personAddress": "istanbul",
+        "mobilePhoneNumber": "05662585858",
+        "identityNumber": "5445454"
+      },
+      "recipientPerson": {
+        "id": 14,
+        "name": "harun",
+        "lastname": "taş",
+        "personAddress": "Ankara",
+        "mobilePhoneNumber": "05333696969",
+        "identityNumber": "232323"
+      }
+    }
+]
